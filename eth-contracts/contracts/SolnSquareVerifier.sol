@@ -1,59 +1,42 @@
 pragma solidity >=0.4.21 <0.6.0;
 
-// TODO define a contract call to the zokrates generated solidity contract <Verifier> or <renamedVerifier>
+import 'openzeppelin-solidity/contracts/math/SafeMath.sol';
 
+import "./ERC721Mintable.sol";
+import "./Verifier.sol";
 
+contract SolnSquareVerifier is MarcinosERC721Token {
+    Verifier verifier;
 
-// TODO define another contract named SolnSquareVerifier that inherits from your ERC721Mintable class
+    constructor (string memory name, string memory symbol) public MarcinosERC721Token(name, symbol) {
+        verifier = new Verifier();
+    }
 
+    struct Solution {
+        uint256 index;
+        address account;
+    }
 
+    uint256 solutionIndex = 1;
+    mapping(bytes32 => Solution) private uniqueSolutions;
 
-// TODO define a solutions struct that can hold an index & an address
+    event SolutionAdded(bytes32 solutionKey, address sender);
 
+    using SafeMath for uint256;
+    function addSolution(uint[2] memory a, uint[2][2] memory b, uint[2] memory c, uint[2] memory inputs) public {
+        bytes32 key = keccak256(abi.encodePacked(a, b, c, inputs));
+        require(uniqueSolutions[key].index == 0, "Solution already exists");
+        uniqueSolutions[key] = Solution({index : solutionIndex, account : msg.sender});
 
-// TODO define an array of the above struct
+        solutionIndex.add(1);
 
+        emit SolutionAdded(key, msg.sender);
+    }
 
-// TODO define a mapping to store unique solutions submitted
+    function mintProperty(address to, uint256 tokenId, uint[2] memory a, uint[2][2] memory b, uint[2] memory c, uint[2] memory inputs) public {
+        require(verifier.verifyTx(a, b, c, inputs), "Solution is incorrect");
 
-
-
-// TODO Create an event to emit when a solution is added
-
-
-
-// TODO Create a function to add the solutions to the array and emit the event
-
-
-
-// TODO Create a function to mint new NFT only after the solution has been verified
-//  - make sure the solution is unique (has not been used before)
-//  - make sure you handle metadata as well as tokenSuplly
-
-  
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+        addSolution(a, b, c, inputs);
+        super.mint(to, tokenId);
+    }
+}
