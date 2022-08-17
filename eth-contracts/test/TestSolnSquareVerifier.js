@@ -1,5 +1,5 @@
 const SolnSquareVerifier = artifacts.require('SolnSquareVerifier');
-const Proof = require('../../zokrates/code/square/proof.json');
+const Proof = require('../proofs/proof.json');
 const assert = require('assert');
 
 contract('TestSolnSquareVerifier', (accounts) => {

@@ -1,5 +1,5 @@
 const Verifier = artifacts.require('Verifier');
-const Proof = require('../../zokrates/code/square/proof.json');
+const Proof = require('../proofs/proof.json');
 const assert = require('assert');
 
 contract('Testing verfier', accounts => {
